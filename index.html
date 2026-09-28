@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#1f2937">
+
+    <title>نظام المبيعات والمشتريات</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<!-- =========================================================
+     شاشة تسجيل الدخول
+========================================================= -->
+
+<div id="loginScreen" class="login-screen">
+
+    <div class="login-box">
+
+        <h2>نظام المبيعات</h2>
+
+        <p>تسجيل الدخول</p>
+
+        <input
+            type="email"
+            id="loginEmail"
+            placeholder="البريد الإلكتروني"
+            autocomplete="username"
+        >
+
+        <input
+            type="password"
+            id="loginPassword"
+            placeholder="كلمة المرور"
+            autocomplete="current-password"
+        >
+
+        <button
+            type="button"
+            id="loginButton"
+        >
+            تسجيل الدخول
+        </button>
+
+        <div
+            id="loginMessage"
+            class="login-message"
+        ></div>
+
+    </div>
+
+</div>
+<!-- =========================================================
+     شاشة التحميل
+========================================================= -->
+
+<div id="loadingScreen" class="loading-screen">
+
+    <div class="loading-box">
+
+        <div class="loading-spinner"></div>
+
+        <h2>جاري تحميل النظام</h2>
+
+        <p id="loadingMessage">
+            يرجى الانتظار...
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     التطبيق الرئيسي
+========================================================= -->
+
+<div id="app" class="app-container hidden">
+
+
+    <!-- =====================================================
+         الشريط الجانبي
+    ====================================================== -->
+
+    <aside id="sidebar" class="sidebar">
+
+        <div class="sidebar-header">
+
+            <div class="app-logo">
+                <span class="logo-icon">▣</span>
+                <span>نظام الإدارة</span>
+            </div>
+
+            <button
+                type="button"
+                id="sidebarClose"
+                class="mobile-close-btn"
+                onclick="closeSidebar()">
+                ×
+            </button>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+
+            <button
+                type="button"
+                class="nav-item active"
+                data-page="dashboard"
+                onclick="showPage('dashboard')">
+
+                <span class="nav-icon">⌂</span>
+                <span>الرئيسية</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="sales"
+                onclick="showPage('sales')">
+
+                <span class="nav-icon">▤</span>
+                <span>المبيعات</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="purchases"
+                onclick="showPage('purchases')">
+
+                <span class="nav-icon">▥</span>
+                <span>المشتريات</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="expenses"
+                onclick="showPage('expenses')">
+
+                <span class="nav-icon">▣</span>
+                <span>المصروفات</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="inventory"
+                onclick="showPage('inventory')">
+
+                <span class="nav-icon">▦</span>
+                <span>المخزون</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="customers"
+                onclick="showPage('customers')">
+
+                <span class="nav-icon">♙</span>
+                <span>العملاء</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="suppliers"
+                onclick="showPage('suppliers')">
+
+                <span class="nav-icon">♟</span>
+                <span>الموردون</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="employees"
+                onclick="showPage('employees')">
+
+                <span class="nav-icon">♙</span>
+                <span>العمال والرواتب</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="investors"
+                onclick="showPage('investors')">
+
+                <span class="nav-icon">٪</span>
+                <span>المستثمرون</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="reports"
+                onclick="showPage('reports')">
+
+                <span class="nav-icon">▥</span>
+                <span>التقارير</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="analysis"
+                onclick="showPage('analysis')">
+
+                <span class="nav-icon">◩</span>
+                <span>التحليل</span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="nav-item"
+                data-page="settings"
+                onclick="showPage('settings')">
+
+                <span class="nav-icon">⚙</span>
+                <span>الإعدادات</span>
+
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="connection-status">
+
+                <span id="firebaseStatusDot"
+                      class="status-dot offline"></span>
+
+                <span id="firebaseStatusText">
+                    جاري الاتصال...
+                </span>
+
+            </div>
+
+
+            <div class="current-user-info">
+
+                <span id="currentUserName"></span>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="logoutButton"
+                class="logout-btn"
+                onclick="logoutUser()">
+                تسجيل الخروج
+            </button>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         المحتوى الرئيسي
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             الهيدر
+        ================================================== -->
+
+        <header class="topbar">
+
+            <button
+                type="button"
+                id="sidebarToggle"
+                class="sidebar-toggle"
+                onclick="toggleSidebar()">
+
+                ☰
+
+            </button>
+
+
+            <div class="topbar-title">
+
+                <h1 id="pageTitle">
+                    الرئيسية
+                </h1>
+
+                <span id="currentDate">
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <button
+                    type="button"
+                    class="icon-button"
+                    onclick="refreshCurrentPage()"
+                    title="تحديث">
+
+                    ↻
+
+                </button>
+
+
+                <div class="user-info">
+
+                    <div class="user-avatar">
+                        م
+                    </div>
+
+                    <div>
+
+                        <strong id="currentUserName">
+                            المستخدم
+                        </strong>
+
+                        <small id="currentUserRole">
+                            مدير النظام
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             صفحات النظام
+        ================================================== -->
+
+        <div class="page-container">
+
+
+            <!-- =============================================
+                 الرئيسية
+            ============================================== -->
+
+            <section
+                id="page-dashboard"
+                class="page active-page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>لوحة التحكم</h2>
+
+                        <p>
+                            ملخص سريع لحالة النشاط التجاري
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stats-grid">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            $
+                        </div>
+
+                        <div>
+
+                            <span>
+                                مبيعات اليوم
+                            </span>
+
+                            <strong id="dashboardTodaySales">
+                                0
+                            </strong>
+
+                            <small>جنيه</small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            +
+                        </div>
+
+                        <div>
+
+                            <span>
+                                مشتريات اليوم
+                            </span>
+
+                            <strong id="dashboardTodayPurchases">
+                                0
+                            </strong>
+
+                            <small>جنيه</small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            ◈
+                        </div>
+
+                        <div>
+
+                            <span>
+                                قيمة المخزون بالتكلفة
+                            </span>
+
+                            <strong id="dashboardInventoryCost">
+                                0
+                            </strong>
+
+                            <small>جنيه</small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            ≈
+                        </div>
+
+                        <div>
+
+                            <span>
+                                صافي الربح
+                            </span>
+
+                            <strong id="dashboardNetProfit">
+                                0
+                            </strong>
+
+                            <small>جنيه</small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-grid">
+
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <h3>
+                                آخر المبيعات
+                            </h3>
+
+                            <button
+                                type="button"
+                                class="btn btn-light"
+                                onclick="showPage('sales')">
+
+                                عرض الكل
+
+                            </button>
+
+                        </div>
+
+                        <div
+                            id="dashboardRecentSales"
+                            class="table-wrapper">
+
+                            <div class="empty-state">
+                                لا توجد مبيعات حتى الآن
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <h3>
+                                تنبيهات المخزون
+                            </h3>
+
+                            <button
+                                type="button"
+                                class="btn btn-light"
+                                onclick="showPage('inventory')">
+
+                                المخزون
+
+                            </button>
+
+                        </div>
+
+                        <div
+                            id="dashboardStockAlerts"
+                            class="alerts-container">
+
+                            <div class="empty-state">
+                                لا توجد تنبيهات
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 المبيعات
+            ============================================== -->
+
+            <section
+                id="page-sales"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>المبيعات</h2>
+
+                        <p>
+                            إدارة فواتير البيع والعملاء والأرباح
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="newSale()">
+
+                        + فاتورة بيع جديدة
+
+                    </button>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="toolbar">
+
+                        <input
+                            type="text"
+                            id="salesSearch"
+                            class="search-input"
+                            placeholder="ابحث في رقم الفاتورة أو العميل..."
+                            oninput="searchSales(this.value)">
+
+                        <input
+                            type="date"
+                            id="salesDateFrom"
+                            class="form-control">
+
+                        <input
+                            type="date"
+                            id="salesDateTo"
+                            class="form-control">
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            onclick="filterSales()">
+
+                            بحث
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="salesTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            لا توجد فواتير مبيعات
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 المشتريات
+            ============================================== -->
+
+            <section
+                id="page-purchases"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>المشتريات</h2>
+
+                        <p>
+                            إدارة المشتريات والتكلفة الفعلية والمصروفات الإضافية
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="newPurchase()">
+
+                        + فاتورة شراء جديدة
+
+                    </button>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="toolbar">
+
+                        <input
+                            type="text"
+                            id="purchasesSearch"
+                            class="search-input"
+                            placeholder="ابحث في الفواتير أو الموردين..."
+                            oninput="searchPurchases(this.value)">
+
+                    </div>
+
+
+                    <div
+                        id="purchasesTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            لا توجد فواتير مشتريات
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 المصروفات
+            ============================================== -->
+
+            <section
+                id="page-expenses"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>المصروفات</h2>
+
+                        <p>
+                            تسجيل ومتابعة جميع المصروفات التشغيلية
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="newExpense()">
+
+                        + إضافة مصروف
+
+                    </button>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div
+                        id="expensesTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            لا توجد مصروفات
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 المخزون
+            ============================================== -->
+
+            <section
+                id="page-inventory"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>المخزون</h2>
+
+                        <p>
+                            الأصناف والكميات والتكلفة وقيمة البيع والرواكد
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="newProduct()">
+
+                        + إضافة صنف
+
+                    </button>
+
+                </div>
+
+
+                <div class="stats-grid inventory-stats">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            #
+                        </div>
+
+                        <div>
+
+                            <span>
+                                عدد الأصناف
+                            </span>
+
+                            <strong id="inventoryProductsCount">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            ◈
+                        </div>
+
+                        <div>
+
+                            <span>
+                                قيمة المخزون بالتكلفة
+                            </span>
+
+                            <strong id="inventoryCostValue">
+                                0
+                            </strong>
+
+                            <small>جنيه</small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            $
+                        </div>
+
+                        <div>
+
+                            <span>
+                                قيمة المخزون بسعر البيع
+                            </span>
+
+                            <strong id="inventorySaleValue">
+                                0
+                            </strong>
+
+                            <small>جنيه</small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            !
+                        </div>
+
+                        <div>
+
+                            <span>
+                                الرواكد
+                            </span>
+
+                            <strong id="inventoryDeadStockValue">
+                                0
+                            </strong>
+
+                            <small>جنيه</small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="toolbar">
+
+                        <input
+                            type="text"
+                            id="inventorySearch"
+                            class="search-input"
+                            placeholder="ابحث باسم الصنف أو الكود أو الباركود..."
+                            oninput="searchInventory(this.value)">
+
+                        <select
+                            id="inventoryCategoryFilter"
+                            class="form-control"
+                            onchange="filterInventory()">
+
+                            <option value="">
+                                كل الأقسام
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div
+                        id="inventoryTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            لا توجد أصناف
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h3>
+                                الأصناف الراكدة
+                            </h3>
+
+                            <p>
+                                أصناف لم تتحرك خلال الفترة المحددة
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dead-stock-filters">
+
+                        <label>
+                            عدد الأيام
+                        </label>
+
+                        <input
+                            type="number"
+                            id="deadStockDays"
+                            class="form-control"
+                            value="90"
+                            min="1">
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            onclick="calculateDeadStock()">
+
+                            تحليل الرواكد
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="deadStockTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            اضغط على تحليل الرواكد
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 العملاء
+            ============================================== -->
+
+            <section
+                id="page-customers"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>العملاء</h2>
+
+                        <p>
+                            إدارة بيانات العملاء وحساباتهم
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="newCustomer()">
+
+                        + إضافة عميل
+
+                    </button>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="toolbar">
+
+                        <input
+                            type="text"
+                            id="customersSearch"
+                            class="search-input"
+                            placeholder="ابحث في العملاء..."
+                            oninput="searchCustomers(this.value)">
+
+                    </div>
+
+
+                    <div
+                        id="customersTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            لا يوجد عملاء
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 الموردون
+            ============================================== -->
+
+            <section
+                id="page-suppliers"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>الموردون</h2>
+
+                        <p>
+                            إدارة الموردين وحساباتهم
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="newSupplier()">
+
+                        + إضافة مورد
+
+                    </button>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="toolbar">
+
+                        <input
+                            type="text"
+                            id="suppliersSearch"
+                            class="search-input"
+                            placeholder="ابحث في الموردين..."
+                            oninput="searchSuppliers(this.value)">
+
+                    </div>
+
+
+                    <div
+                        id="suppliersTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            لا يوجد موردون
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 العمال والرواتب
+            ============================================== -->
+
+            <section
+                id="page-employees"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>العمال والرواتب</h2>
+
+                        <p>
+                            إدارة العاملين والرواتب والأجور
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="newEmployee()">
+
+                        + إضافة عامل
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        id="createEmployeeAccountBtn"
+                        onclick="newEmployeeAccount()">
+
+                        + إنشاء حساب دخول للنظام
+
+                    </button>
+
+                </div>
+
+
+                <div class="stats-grid">
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            ♙
+                        </div>
+
+                        <div>
+
+                            <span>
+                                عدد العاملين
+                            </span>
+
+                            <strong id="employeesCount">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card">
+
+                        <div class="stat-icon">
+                            $
+                        </div>
+
+                        <div>
+
+                            <span>
+                                إجمالي الرواتب الشهرية
+                            </span>
+
+                            <strong id="monthlySalaries">
+                                0
+                            </strong>
+
+                            <small>جنيه</small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="toolbar">
+
+                        <input
+                            type="text"
+                            id="employeesSearch"
+                            class="search-input"
+                            placeholder="ابحث بالاسم أو الهاتف أو الرقم القومي..."
+                            oninput="searchEmployees(this.value)">
+
+                    </div>
+
+
+                    <div
+                        id="employeesTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            لا يوجد عمال
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 المستثمرون
+            ============================================== -->
+
+            <section
+                id="page-investors"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>المستثمرون</h2>
+
+                        <p>
+                            رأس المال ونسب الملكية وتوزيع الأرباح
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="newInvestor()">
+
+                        + إضافة مستثمر
+
+                    </button>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div
+                        id="investorsTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            لا يوجد مستثمرون
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h3>
+                                توزيع الأرباح
+                            </h3>
+
+                            <p>
+                                يتم الحساب طبقًا لنسبة رأس مال كل مستثمر
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="profit-distribution-box">
+
+                        <div class="form-group">
+
+                            <label>
+                                صافي الربح المراد توزيعه
+                            </label>
+
+                            <input
+                                type="number"
+                                id="profitToDistribute"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                value="0">
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            onclick="calculateProfitDistribution()">
+
+                            حساب التوزيع
+
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="profitDistributionTable"
+                        class="table-wrapper">
+
+                        <div class="empty-state">
+                            أدخل صافي الربح ثم اضغط حساب التوزيع
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 التقارير
+            ============================================== -->
+
+            <section
+                id="page-reports"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>التقارير</h2>
+
+                        <p>
+                            تقارير مالية وتشغيلية للفترات المختلفة
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="report-filters">
+
+                    <div class="form-group">
+
+                        <label>
+                            من
+                        </label>
+
+                        <input
+                            type="date"
+                            id="reportDateFrom"
+                            class="form-control">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            إلى
+                        </label>
+
+                        <input
+                            type="date"
+                            id="reportDateTo"
+                            class="form-control">
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="generateReports()">
+
+                        إنشاء التقرير
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        onclick="window.print()">
+
+                        طباعة التقرير
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        onclick="exportReportsToExcel()">
+
+                        تصدير Excel
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="reportsContent"
+                    class="reports-content">
+
+                    <div class="empty-state">
+                        اختر الفترة ثم أنشئ التقرير
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 التحليل
+            ============================================== -->
+
+            <section
+                id="page-analysis"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>التحليل</h2>
+
+                        <p>
+                            تحليل المبيعات والربحية والمصروفات والأقسام
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="analysis-filters">
+
+                    <div class="form-group">
+
+                        <label>
+                            الفترة
+                        </label>
+
+                        <select
+                            id="analysisPeriod"
+                            class="form-control"
+                            onchange="toggleAnalysisCustomRange()">
+
+                            <option value="month">
+                                هذا الشهر
+                            </option>
+
+                            <option value="quarter">
+                                هذا الربع
+                            </option>
+
+                            <option value="year">
+                                هذا العام
+                            </option>
+
+                            <option value="all">
+                                كل الفترات
+                            </option>
+
+                            <option value="custom">
+                                فترة مخصصة
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div
+                        id="analysisCustomRange"
+                        class="analysis-custom-range hidden">
+
+                        <div class="form-group">
+
+                            <label>
+                                من
+                            </label>
+
+                            <input
+                                type="date"
+                                id="analysisDateFrom"
+                                class="form-control">
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                إلى
+                            </label>
+
+                            <input
+                                type="date"
+                                id="analysisDateTo"
+                                class="form-control">
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="runAnalysis()">
+
+                        تحليل
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="analysisContent"
+                    class="analysis-content">
+
+                    <div class="empty-state">
+                        اختر الفترة ثم اضغط تحليل
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =============================================
+                 الإعدادات
+            ============================================== -->
+
+            <section
+                id="page-settings"
+                class="page">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>الإعدادات</h2>
+
+                        <p>
+                            إعدادات النظام والبيانات الأساسية
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="settings-grid">
+
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <h3>
+                                إعدادات المنشأة
+                            </h3>
+
+                        </div>
+
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label>
+                                    اسم المنشأة
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="businessName"
+                                    class="form-control"
+                                    placeholder="اسم المنشأة">
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    الهاتف
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="businessPhone"
+                                    class="form-control"
+                                    placeholder="رقم الهاتف">
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    العملة الأساسية
+                                </label>
+
+                                <select
+                                    id="baseCurrency"
+                                    class="form-control">
+
+                                    <option value="EGP">
+                                        جنيه مصري
+                                    </option>
+
+                                    <option value="USD">
+                                        دولار أمريكي
+                                    </option>
+
+                                    <option value="SAR">
+                                        ريال سعودي
+                                    </option>
+
+                                    <option value="EUR">
+                                        يورو
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            onclick="saveSettings()">
+
+                            حفظ الإعدادات
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="panel">
+
+                        <div class="panel-header">
+
+                            <h3>
+                                حالة قاعدة البيانات
+                            </h3>
+
+                        </div>
+
+
+                        <div class="database-status">
+
+                            <div>
+
+                                <span class="status-dot"
+                                      id="databaseStatusDot"></span>
+
+                                <strong id="databaseStatusText">
+                                    جاري التحقق...
+                                </strong>
+
+                            </div>
+
+
+                            <div class="database-info">
+
+                                <span>
+                                    نوع التخزين:
+                                </span>
+
+                                <strong>
+                                    Firebase Firestore
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </div>
+
+    </main>
+
+</div>
+
+
+
+<!-- =========================================================
+     طبقة خلفية للموبايل
+========================================================= -->
+
+<div
+    id="sidebarOverlay"
+    class="sidebar-overlay hidden"
+    onclick="closeSidebar()">
+</div>
+
+
+
+<!-- =========================================================
+     الحاوية الخاصة بالنوافذ المنبثقة
+========================================================= -->
+
+<div
+    id="modalContainer"
+    class="modal-container hidden">
+</div>
+
+
+
+<!-- =========================================================
+     رسائل التنبيه
+========================================================= -->
+
+<div
+    id="toastContainer"
+    class="toast-container">
+</div>
+
+
+
+<!-- =========================================================
+     مكتبة تصدير Excel
+========================================================= -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+<!-- =========================================================
+     Firebase
+========================================================= -->
+
+<script type="module" src="firebase-config.js"></script>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+rules_version = '2';
+
+// =========================================================
+// قواعد أمان Firestore - نظام NEC للمبيعات
+// =========================================================
+//
+// المبدأ العام:
+// - أي عملية لازم المستخدم يكون مسجّل دخول (auth != null)
+// - كل مستخدم إله ملف بمجموعة users فيه role (admin/employee)
+//   و permissions (كائن فيه true/false لكل صفحة)
+// - المدير (admin) عنده صلاحية كاملة على كل شي
+// - الموظف (employee) لازم يكون الحساب "active" وعنده
+//   الصلاحية الصريحة على القسم المطلوب
+//
+// =========================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function myUserDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function myUserData() {
+      return myUserDoc().data;
+    }
+
+    function userDocExists() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isActiveUser() {
+      return userDocExists() &&
+        myUserData().active == true;
+    }
+
+    function isAdmin() {
+      return isActiveUser() &&
+        myUserData().role == 'admin';
+    }
+
+    // هل عند المستخدم الحالي صلاحية على قسم معيّن؟
+    function hasPermission(section) {
+      return isAdmin() ||
+        (
+          isActiveUser() &&
+          myUserData().permissions[section] == true
+        );
+    }
+
+    // أول مستخدم بالنظام بالكامل يُسمح له ينشئ
+    // ملفه الشخصي كمدير تلقائيًا. نعتمد على مستند
+    // قفل وحيد /meta/bootstrap (مش وجود ملفه هو بس)
+    // عشان ما يقدر أي مستخدم تاني يسوي نفس الشي بعد
+    // ما يصير في مدير مسجّل أصلًا
+    function bootstrapAlreadyDone() {
+      return exists(/databases/$(database)/documents/meta/bootstrap);
+    }
+
+
+    // =======================================================
+    // مجموعة المستخدمين (users)
+    // =======================================================
+
+    match /users/{userId} {
+
+      // القراءة: المستخدم يقرأ ملفه الشخصي فقط، أو
+      // المدير يقدر يقرأ أي ملف (لإدارة الموظفين)
+      allow read: if isSignedIn() &&
+        (request.auth.uid == userId || isAdmin());
+
+      // الإنشاء: يسمح فقط بحالتين
+      // 1) المدير يقدر يضيف مستخدمين (عادةً عبر
+      //    Cloud Function بصلاحيات admin SDK، بتتجاوز
+      //    هاي القاعدة أصلًا، بس منسمح فيها هون كمان
+      //    كطبقة إضافية لو استُخدم SDK العادي)
+      // 2) بوتستراب أول مستخدم بالنظام بالكامل (قبل
+      //    ما ينعمل قفل /meta/bootstrap) - وبس يقدر
+      //    ينشئ ملفه الشخصي هو، مش أي مستخدم تاني
+      allow create: if isAdmin() ||
+        (
+          isSignedIn() &&
+          request.auth.uid == userId &&
+          request.resource.data.role == 'admin' &&
+          !bootstrapAlreadyDone()
+        );
+
+      // التعديل والحذف: المدير فقط (أو المستخدم
+      // نفسه يعدّل بياناته الأساسية بس مش الصلاحيات
+      // أو الدور، عشان ما يرفّع نفسه)
+      allow update: if isAdmin() ||
+        (
+          isSignedIn() &&
+          request.auth.uid == userId &&
+          request.resource.data.role == resource.data.role &&
+          request.resource.data.permissions == resource.data.permissions &&
+          request.resource.data.active == resource.data.active
+        );
+
+      allow delete: if isAdmin();
+
+    }
+
+
+    // =======================================================
+    // مستند قفل البوتستراب (/meta/bootstrap)
+    // بيتسجّل مرة واحدة بس لما ينعمل أول مدير، وبعدها
+    // ما حدا يقدر يعدّله أو يحذفه أو ينشئ غيره
+    // =======================================================
+
+    match /meta/bootstrap {
+
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn() &&
+        !bootstrapAlreadyDone();
+
+      allow update, delete: if false;
+
+    }
+
+
+    // =======================================================
+    // بيانات النظام - كل مجموعة مربوطة بصلاحية القسم
+    // المقابل لها بالضبط متل الواجهة الأمامية
+    // =======================================================
+
+    match /sales/{docId} {
+      allow read: if hasPermission('sales');
+      allow write: if hasPermission('sales');
+    }
+
+    match /purchases/{docId} {
+      allow read: if hasPermission('purchases');
+      allow write: if hasPermission('purchases');
+    }
+
+    match /expenses/{docId} {
+      allow read: if hasPermission('expenses');
+      allow write: if hasPermission('expenses');
+    }
+
+    match /products/{docId} {
+      // المخزون بيتأثر من صفحتي المبيعات والمشتريات
+      // كمان (خصم/إضافة كمية)، فبنسمح لأي وحدة منهم
+      allow read: if hasPermission('inventory') ||
+        hasPermission('sales') ||
+        hasPermission('purchases');
+
+      allow write: if hasPermission('inventory') ||
+        hasPermission('sales') ||
+        hasPermission('purchases');
+    }
+
+    match /customers/{docId} {
+      allow read: if hasPermission('customers') || hasPermission('sales');
+      allow write: if hasPermission('customers');
+    }
+
+    match /suppliers/{docId} {
+      allow read: if hasPermission('suppliers') || hasPermission('purchases');
+      allow write: if hasPermission('suppliers');
+    }
+
+    match /employees/{docId} {
+      allow read: if hasPermission('employees');
+      allow write: if hasPermission('employees');
+    }
+
+    match /investors/{docId} {
+      allow read: if hasPermission('investors');
+      allow write: if hasPermission('investors');
+    }
+
+    match /settings/{docId} {
+      allow read: if isActiveUser();
+      allow write: if hasPermission('settings');
+    }
+
+  }
+}
